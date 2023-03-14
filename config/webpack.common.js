@@ -22,7 +22,7 @@ module.exports = {
       template: 'public/index.html',
     }),
     new EnvironmentPlugin({
-      S3_API_URL: process.env.API_URI,
+      S3_API_URL: process.env.S3_API_URL,
     }),
     new webpack.ProvidePlugin({
       React: 'react',
