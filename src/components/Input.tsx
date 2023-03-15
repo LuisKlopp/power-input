@@ -1,14 +1,13 @@
 import React, { ChangeEvent, useState, useRef, KeyboardEvent } from 'react';
-import { useEffect } from 'react';
 import { handler } from '@/api/powerApi';
 import { User } from '@/types/userData';
 
 const Input = () => {
-  const listRef = useRef<HTMLUListElement>(null);
+  const listBoxRef = useRef<HTMLUListElement>(null);
+  const [userData, setUserData] = useState<User[]>([]);
+  const [isNull, setIsNull] = useState<boolean>(true);
   const [focusingIndex, setFocusingIndex] = useState<number>(-1);
   const [currentInputValue, setCurrentInputValue] = useState<string>('');
-  const [isNull, setIsNull] = useState<boolean>(true);
-  const [userData, setUserData] = useState<User[]>([]);
 
   const getUserData = async (inputs: string) => {
     const data = await handler(inputs);
@@ -17,7 +16,19 @@ const Input = () => {
 
   const onkeydown = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'ArrowDown') {
-      console.log(currentInputValue);
+      listBoxRef.current!.childElementCount === focusingIndex + 1
+        ? setFocusingIndex(0)
+        : setFocusingIndex(focusingIndex + 1);
+    } else if (e.key === 'ArrowUp') {
+      focusingIndex === 0
+        ? setFocusingIndex(userData.length - 1)
+        : setFocusingIndex(focusingIndex - 1);
+    }
+
+    if (e.key === 'Enter') {
+      setCurrentInputValue(userData[focusingIndex].name);
+      setIsNull(true);
+      setFocusingIndex(0);
     }
   };
 
@@ -69,8 +80,8 @@ const Input = () => {
             top: '100%',
           }}
         >
-          <ul css={{ listStyle: 'none' }} ref={listRef}>
-            {userData.slice(0, 5).map((data, i) => {
+          <ul css={{ listStyle: 'none' }} ref={listBoxRef}>
+            {userData.map((data, index) => {
               return (
                 <li
                   key={data.id}
@@ -79,7 +90,8 @@ const Input = () => {
                     setIsNull(true);
                   }}
                   css={{
-                    backgroundColor: 'white',
+                    backgroundColor:
+                      focusingIndex === index ? '#bfeff9' : 'white',
                     fontSize: '20px',
                     cursor: 'pointer',
                     width: '100%',
