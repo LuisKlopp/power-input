@@ -16,7 +16,7 @@ const Input = () => {
 
   const onkeydown = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'ArrowDown') {
-      listBoxRef.current!.childElementCount === focusingIndex + 1
+      listBoxRef.current!.childElementCount == focusingIndex + 1
         ? setFocusingIndex(0)
         : setFocusingIndex(focusingIndex + 1);
     } else if (e.key === 'ArrowUp') {
@@ -36,6 +36,7 @@ const Input = () => {
     const inputValue = e.target.value;
     getUserData(inputValue);
     setCurrentInputValue(inputValue);
+    setFocusingIndex(0);
     setIsNull(false);
     if (!inputValue) return setIsNull(true);
   };
@@ -90,11 +91,12 @@ const Input = () => {
                     setIsNull(true);
                   }}
                   css={{
+                    padding: '5px',
                     backgroundColor:
                       focusingIndex === index ? '#bfeff9' : 'white',
                     fontSize: '20px',
                     cursor: 'pointer',
-                    width: '100%',
+                    // width: '100%',
                     '&:hover': {
                       backgroundColor: '#bfeff9',
                     },
