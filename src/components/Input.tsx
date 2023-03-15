@@ -45,58 +45,68 @@ const Input = () => {
     [stateData.userData]
   );
 
+  const handleArrowDown = () => {
+    if (listBoxRef.current?.childElementCount === stateData.focusingIndex + 1) {
+      if (stateData.userData[stateData.focusingIndex + 1]) {
+        setStateData((prevState) => ({
+          ...prevState,
+          userData: prevState.userData.filter(
+            (user, index) => prevState.focusingIndex - 4 !== index
+          ),
+        }));
+      } else {
+        getUserData(stateData.currentInputValue);
+        setStateData((prevState) => ({
+          ...prevState,
+          focusingIndex: 0,
+        }));
+      }
+    } else {
+      setStateData((prevState) => ({
+        ...prevState,
+        focusingIndex: prevState.focusingIndex + 1,
+      }));
+    }
+  };
+
+  const handleArrowUp = () => {
+    if (stateData.focusingIndex === 0) {
+      setStateData((prevState) => ({
+        ...prevState,
+        focusingIndex: prevState.userData.length - 1,
+        userData: prevState.userData.filter(
+          (user, index) => index !== prevState.focusingIndex
+        ),
+      }));
+    } else {
+      setStateData((prevState) => ({
+        ...prevState,
+        focusingIndex: prevState.focusingIndex - 1,
+      }));
+    }
+  };
+
+  const handleEnter = () => {
+    setStateData((prevState) => ({
+      ...prevState,
+      currentInputValue: prevState.userData[prevState.focusingIndex].name,
+      isNull: true,
+      focusingIndex: 0,
+    }));
+  };
+
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
     switch (e.key) {
-      case 'ArrowDown': // 아래 방향키 눌렀을 때
-        if (
-          listBoxRef.current!.childElementCount ===
-          stateData.focusingIndex + 1
-        ) {
-          if (stateData.userData[stateData.focusingIndex + 1]) {
-            setStateData({
-              ...stateData,
-              userData: stateData.userData.filter(
-                (user, index) => stateData.focusingIndex - 4 !== index
-              ),
-            });
-          } else {
-            getUserData(stateData.currentInputValue);
-            setStateData({
-              ...stateData,
-              focusingIndex: 0,
-            });
-          }
-        } else {
-          setStateData({
-            ...stateData,
-            focusingIndex: stateData.focusingIndex + 1,
-          });
-          // setFocusingIndex(focusingIndex + 1);
-        }
+      case 'ArrowDown':
+        handleArrowDown();
         break;
-      case 'ArrowUp': // 위 방향키 눌렀을 때
-        if (stateData.focusingIndex === 0) {
-          setStateData({
-            ...stateData,
-            focusingIndex: stateData.userData.length - 1,
-            userData: stateData.userData.filter(
-              (user, index) => index !== stateData.focusingIndex
-            ),
-          });
-        } else {
-          setStateData({
-            ...stateData,
-            focusingIndex: stateData.focusingIndex - 1,
-          });
-        }
+      case 'ArrowUp':
+        handleArrowUp();
         break;
-      case 'Enter': // 엔터키 눌렀을 때
-        setStateData({
-          ...stateData,
-          currentInputValue: stateData.userData[stateData.focusingIndex].name,
-          isNull: true,
-          focusingIndex: 0,
-        });
+      case 'Enter':
+        handleEnter();
+        break;
+      default:
         break;
     }
   };
