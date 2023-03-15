@@ -8,15 +8,28 @@ import React, {
 import { handler } from '@/api/powerApi';
 import { User } from '@/types/userData';
 
+interface Props {
+  userData: User[];
+  isNull: boolean;
+  focusingIndex: number;
+  currentInputValue: string;
+}
+
 const Input = () => {
   // prop destruction
   // lib hooks
   // state, ref, querystring hooks
   const listBoxRef = useRef<HTMLUListElement>(null);
-  const [userData, setUserData] = useState<User[]>([]);
-  const [isNull, setIsNull] = useState<boolean>(true);
-  const [focusingIndex, setFocusingIndex] = useState<number>(0);
-  const [currentInputValue, setCurrentInputValue] = useState<string>('');
+  const [stateData, setStateData] = useState<Props>({
+    userData: [],
+    isNull: true,
+    focusingIndex: 0,
+    currentInputValue: '',
+  });
+  // const [userData, setUserData] = useState<User[]>([]);
+  // const [isNull, setIsNull] = useState<boolean>(true);
+  // const [focusingIndex, setFocusingIndex] = useState<number>(0);
+  // const [currentInputValue, setCurrentInputValue] = useState<string>('');
   // form hooks
   // query hooks
   // calculated values
@@ -25,48 +38,93 @@ const Input = () => {
   const getUserData = useCallback(
     async (inputs: string) => {
       const data = await handler(inputs);
-      setUserData(data);
+      setStateData((stateData) => {
+        return { ...stateData, userData: data };
+      });
     },
-    [userData]
+    [stateData.userData]
   );
 
   const onkeydown = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'ArrowDown') {
-      if (listBoxRef.current!.childElementCount === focusingIndex + 1) {
-        if (userData[focusingIndex + 1]) {
-          setUserData(
-            userData.filter((user, index) => focusingIndex - 4 !== index)
-          );
+      if (
+        listBoxRef.current!.childElementCount ===
+        stateData.focusingIndex + 1
+      ) {
+        if (stateData.userData[stateData.focusingIndex + 1]) {
+          setStateData((stateData) => {
+            return {
+              ...stateData,
+              userData: stateData.userData.filter(
+                (user, index) => stateData.focusingIndex - 4 !== index
+              ),
+            };
+          });
         } else {
-          getUserData(currentInputValue);
-          setFocusingIndex(0);
+          getUserData(stateData.currentInputValue);
+          setStateData((stateData) => {
+            return {
+              ...stateData,
+              focusingIndex: 0,
+            };
+          });
         }
       } else {
-        setFocusingIndex(focusingIndex + 1);
+        setStateData((stateData) => {
+          return {
+            ...stateData,
+            focusingIndex: stateData.focusingIndex + 1,
+          };
+        });
+        // setFocusingIndex(focusingIndex + 1);
       }
     } else if (e.key === 'ArrowUp') {
-      if (focusingIndex === 0) {
-        setFocusingIndex(userData.length - 1);
-        setUserData(userData.filter((user, index) => index !== focusingIndex));
+      if (stateData.focusingIndex === 0) {
+        setStateData((stateData) => {
+          return {
+            ...stateData,
+            focusingIndex: stateData.userData.length - 1,
+            userData: stateData.userData.filter(
+              (user, index) => index !== stateData.focusingIndex
+            ),
+          };
+        });
       } else {
-        setFocusingIndex(focusingIndex - 1);
+        setStateData((stateData) => {
+          return {
+            ...stateData,
+            focusingIndex: stateData.focusingIndex - 1,
+          };
+        });
       }
     }
 
     if (e.key === 'Enter') {
-      setCurrentInputValue(userData[focusingIndex].name);
-      setIsNull(true);
-      setFocusingIndex(0);
+      setStateData((stateData) => {
+        return {
+          ...stateData,
+          currentInputValue: stateData.userData[stateData.focusingIndex].name,
+          isNull: true,
+          focusingIndex: 0,
+        };
+      });
     }
   };
-
   const onChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const inputValue = e.target.value;
     getUserData(inputValue);
-    setCurrentInputValue(inputValue);
-    setFocusingIndex(0);
-    setIsNull(false);
-    if (!inputValue) return setIsNull(true);
+    setStateData((stateData) => {
+      return {
+        ...stateData,
+        currentInputValue: inputValue,
+        focusingIndex: 0,
+        isNull: false,
+      };
+    });
+    if (!inputValue)
+      return setStateData((stateData) => {
+        return { ...stateData, isNull: true };
+      });
   };
 
   return (
@@ -82,7 +140,7 @@ const Input = () => {
         type='text'
         onChange={onChange}
         onKeyDown={onkeydown}
-        value={currentInputValue}
+        value={stateData.currentInputValue}
         css={{
           marginTop: '10px',
           width: '270px',
@@ -96,7 +154,7 @@ const Input = () => {
           },
         }}
       ></input>
-      {userData.length !== 0 && !isNull && (
+      {stateData.userData.length !== 0 && !stateData.isNull && (
         <div
           css={{
             display: 'flex',
@@ -110,18 +168,21 @@ const Input = () => {
           }}
         >
           <ul css={{ listStyle: 'none' }} ref={listBoxRef}>
-            {userData.slice(0, 5).map((data, index) => {
+            {stateData.userData.slice(0, 5).map((data, index) => {
               return (
                 <li
                   key={data.id}
                   onClick={() => {
-                    setCurrentInputValue(data.name);
-                    setIsNull(true);
+                    setStateData({
+                      ...stateData,
+                      currentInputValue: data.name,
+                      isNull: true,
+                    });
                   }}
                   css={{
                     padding: '5px',
                     backgroundColor:
-                      focusingIndex === index ? '#bfeff9' : 'white',
+                      stateData.focusingIndex === index ? '#bfeff9' : 'white',
                     fontSize: '20px',
                     cursor: 'pointer',
                     '&:hover': {
