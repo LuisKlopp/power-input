@@ -1,28 +1,56 @@
-import React, { ChangeEvent, useState, useRef, KeyboardEvent } from 'react';
+import React, {
+  ChangeEvent,
+  useState,
+  useRef,
+  KeyboardEvent,
+  useCallback,
+} from 'react';
 import { handler } from '@/api/powerApi';
 import { User } from '@/types/userData';
 
 const Input = () => {
+  // prop destruction
+  // lib hooks
+  // state, ref, querystring hooks
   const listBoxRef = useRef<HTMLUListElement>(null);
   const [userData, setUserData] = useState<User[]>([]);
   const [isNull, setIsNull] = useState<boolean>(true);
-  const [focusingIndex, setFocusingIndex] = useState<number>(-1);
+  const [focusingIndex, setFocusingIndex] = useState<number>(0);
   const [currentInputValue, setCurrentInputValue] = useState<string>('');
-
-  const getUserData = async (inputs: string) => {
-    const data = await handler(inputs);
-    setUserData(data);
-  };
+  // form hooks
+  // query hooks
+  // calculated values
+  // effects
+  // handlers
+  const getUserData = useCallback(
+    async (inputs: string) => {
+      const data = await handler(inputs);
+      setUserData(data);
+    },
+    [userData]
+  );
 
   const onkeydown = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'ArrowDown') {
-      listBoxRef.current!.childElementCount == focusingIndex + 1
-        ? setFocusingIndex(0)
-        : setFocusingIndex(focusingIndex + 1);
+      if (listBoxRef.current!.childElementCount === focusingIndex + 1) {
+        if (userData[focusingIndex + 1]) {
+          setUserData(
+            userData.filter((user, index) => focusingIndex - 4 !== index)
+          );
+        } else {
+          getUserData(currentInputValue);
+          setFocusingIndex(0);
+        }
+      } else {
+        setFocusingIndex(focusingIndex + 1);
+      }
     } else if (e.key === 'ArrowUp') {
-      focusingIndex === 0
-        ? setFocusingIndex(userData.length - 1)
-        : setFocusingIndex(focusingIndex - 1);
+      if (focusingIndex === 0) {
+        setFocusingIndex(userData.length - 1);
+        setUserData(userData.filter((user, index) => index !== focusingIndex));
+      } else {
+        setFocusingIndex(focusingIndex - 1);
+      }
     }
 
     if (e.key === 'Enter') {
@@ -82,7 +110,7 @@ const Input = () => {
           }}
         >
           <ul css={{ listStyle: 'none' }} ref={listBoxRef}>
-            {userData.map((data, index) => {
+            {userData.slice(0, 5).map((data, index) => {
               return (
                 <li
                   key={data.id}
@@ -96,13 +124,12 @@ const Input = () => {
                       focusingIndex === index ? '#bfeff9' : 'white',
                     fontSize: '20px',
                     cursor: 'pointer',
-                    // width: '100%',
                     '&:hover': {
                       backgroundColor: '#bfeff9',
                     },
                   }}
                 >
-                  {data.name}
+                  {data.name + `(${data.age})`}
                 </li>
               );
             })}

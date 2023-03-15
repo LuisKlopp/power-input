@@ -24,7 +24,7 @@ const App = () => {
           }}
         >
           <span css={{ color: '#02024e', fontSize: '30px', fontWeight: '600' }}>
-            Super Input
+            Power Input
           </span>
           <Input />
         </div>
