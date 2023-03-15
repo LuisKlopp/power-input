@@ -1,23 +1,9 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { handler } from './api/powerApi';
 import { User } from './types/userData';
-import { S3_API_URL } from './configs';
 import Input from './components/Input';
 
 const App = () => {
-  const baseUrl: string = S3_API_URL;
-
-  const [json, setJson] = useState<User[]>([]);
-
-  const getData = async () => {
-    const data = await axios.get(baseUrl);
-    setJson(data.data);
-  };
-
-  useEffect(() => {
-    getData();
-  }, []);
-
   return (
     <>
       <div
@@ -26,10 +12,21 @@ const App = () => {
           height: '100vh',
           display: 'flex',
           justifyContent: 'center',
+          backgroundColor: '#aec8f1',
         }}
       >
-        <div>
-          <Input json={json} />
+        <div
+          css={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginTop: '10px',
+          }}
+        >
+          <span css={{ color: '#02024e', fontSize: '30px', fontWeight: '600' }}>
+            Super Input
+          </span>
+          <Input />
         </div>
       </div>
     </>
