@@ -45,71 +45,62 @@ const Input = () => {
     [stateData.userData]
   );
 
-  const onkeydown = (e: KeyboardEvent<HTMLInputElement>): void => {
-    if (e.key === 'ArrowDown') {
-      if (
-        listBoxRef.current!.childElementCount ===
-        stateData.focusingIndex + 1
-      ) {
-        if (stateData.userData[stateData.focusingIndex + 1]) {
-          setStateData((stateData) => {
-            return {
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
+    switch (e.key) {
+      case 'ArrowDown': // 아래 방향키 눌렀을 때
+        if (
+          listBoxRef.current!.childElementCount ===
+          stateData.focusingIndex + 1
+        ) {
+          if (stateData.userData[stateData.focusingIndex + 1]) {
+            setStateData({
               ...stateData,
               userData: stateData.userData.filter(
                 (user, index) => stateData.focusingIndex - 4 !== index
               ),
-            };
-          });
-        } else {
-          getUserData(stateData.currentInputValue);
-          setStateData((stateData) => {
-            return {
+            });
+          } else {
+            getUserData(stateData.currentInputValue);
+            setStateData({
               ...stateData,
               focusingIndex: 0,
-            };
-          });
-        }
-      } else {
-        setStateData((stateData) => {
-          return {
+            });
+          }
+        } else {
+          setStateData({
             ...stateData,
             focusingIndex: stateData.focusingIndex + 1,
-          };
-        });
-        // setFocusingIndex(focusingIndex + 1);
-      }
-    } else if (e.key === 'ArrowUp') {
-      if (stateData.focusingIndex === 0) {
-        setStateData((stateData) => {
-          return {
+          });
+          // setFocusingIndex(focusingIndex + 1);
+        }
+        break;
+      case 'ArrowUp': // 위 방향키 눌렀을 때
+        if (stateData.focusingIndex === 0) {
+          setStateData({
             ...stateData,
             focusingIndex: stateData.userData.length - 1,
             userData: stateData.userData.filter(
               (user, index) => index !== stateData.focusingIndex
             ),
-          };
-        });
-      } else {
-        setStateData((stateData) => {
-          return {
+          });
+        } else {
+          setStateData({
             ...stateData,
             focusingIndex: stateData.focusingIndex - 1,
-          };
-        });
-      }
-    }
-
-    if (e.key === 'Enter') {
-      setStateData((stateData) => {
-        return {
+          });
+        }
+        break;
+      case 'Enter': // 엔터키 눌렀을 때
+        setStateData({
           ...stateData,
           currentInputValue: stateData.userData[stateData.focusingIndex].name,
           isNull: true,
           focusingIndex: 0,
-        };
-      });
+        });
+        break;
     }
   };
+
   const onChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const inputValue = e.target.value;
     getUserData(inputValue);
@@ -139,7 +130,7 @@ const Input = () => {
       <input
         type='text'
         onChange={onChange}
-        onKeyDown={onkeydown}
+        onKeyDown={onKeyDown}
         value={stateData.currentInputValue}
         css={{
           marginTop: '10px',
