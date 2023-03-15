@@ -1,9 +1,11 @@
-import React, { ChangeEvent, useState, useRef } from 'react';
+import React, { ChangeEvent, useState, useRef, KeyboardEvent } from 'react';
 import { useEffect } from 'react';
 import { handler } from '@/api/powerApi';
 import { User } from '@/types/userData';
 
 const Input = () => {
+  const listRef = useRef<HTMLUListElement>(null);
+  const [focusingIndex, setFocusingIndex] = useState<number>(-1);
   const [currentInputValue, setCurrentInputValue] = useState<string>('');
   const [isNull, setIsNull] = useState<boolean>(true);
   const [userData, setUserData] = useState<User[]>([]);
@@ -11,6 +13,12 @@ const Input = () => {
   const getUserData = async (inputs: string) => {
     const data = await handler(inputs);
     setUserData(data);
+  };
+
+  const onkeydown = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'ArrowDown') {
+      console.log(currentInputValue);
+    }
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -33,6 +41,7 @@ const Input = () => {
       <input
         type='text'
         onChange={onChange}
+        onKeyDown={onkeydown}
         value={currentInputValue}
         css={{
           marginTop: '10px',
@@ -43,7 +52,7 @@ const Input = () => {
           fontSize: '20px',
           outline: 'none',
           '&:focus': {
-            border: '3px solid #5555FF',
+            outline: '3px solid #5555FF',
           },
         }}
       ></input>
@@ -57,31 +66,33 @@ const Input = () => {
             border: '1px solid black',
             position: 'absolute',
             boxShadow: `3px 2px 0px black`,
-            backgroundColor: 'white',
             top: '100%',
           }}
         >
-          {userData.slice(0, 5).map((data) => {
-            return (
-              <span
-                key={data.id}
-                onClick={() => {
-                  setCurrentInputValue(data.name);
-                  setIsNull(true);
-                }}
-                css={{
-                  fontSize: '20px',
-                  cursor: 'pointer',
-                  width: '100%',
-                  '&:hover': {
-                    backgroundColor: '#bfeff9',
-                  },
-                }}
-              >
-                {data.name}
-              </span>
-            );
-          })}
+          <ul css={{ listStyle: 'none' }} ref={listRef}>
+            {userData.slice(0, 5).map((data, i) => {
+              return (
+                <li
+                  key={data.id}
+                  onClick={() => {
+                    setCurrentInputValue(data.name);
+                    setIsNull(true);
+                  }}
+                  css={{
+                    backgroundColor: 'white',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    width: '100%',
+                    '&:hover': {
+                      backgroundColor: '#bfeff9',
+                    },
+                  }}
+                >
+                  {data.name}
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
     </div>
