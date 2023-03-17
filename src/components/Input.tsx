@@ -38,8 +38,8 @@ const Input = () => {
   const getUserData = useCallback(
     async (inputs: string) => {
       const data = await handler(inputs);
-      setStateData((stateData) => {
-        return { ...stateData, userData: data };
+      setStateData((prevState) => {
+        return { ...prevState, userData: data };
       });
     },
     [stateData.userData]
@@ -74,9 +74,6 @@ const Input = () => {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: prevState.userData.length - 1,
-        userData: prevState.userData.filter(
-          (user, index) => index !== prevState.focusingIndex
-        ),
       }));
     } else {
       setStateData((prevState) => ({
@@ -114,17 +111,17 @@ const Input = () => {
   const onChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const inputValue = e.target.value;
     getUserData(inputValue);
-    setStateData((stateData) => {
+    setStateData((prevState) => {
       return {
-        ...stateData,
+        ...prevState,
         currentInputValue: inputValue,
         focusingIndex: 0,
         isNull: false,
       };
     });
     if (!inputValue)
-      return setStateData((stateData) => {
-        return { ...stateData, isNull: true };
+      return setStateData((prevState) => {
+        return { ...prevState, isNull: true };
       });
   };
 
