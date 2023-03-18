@@ -93,7 +93,7 @@ const Input = () => {
           stateData.originData.length - visibleDataLength,
           stateData.originData.length + 1
         ),
-        focusingIndex: 4,
+        focusingIndex: visibleDataLength - 1,
         originIndex: prevState.originData.length - 1,
       }));
     } else if (stateData.focusingIndex === 0 && stateData.originIndex > 0) {
