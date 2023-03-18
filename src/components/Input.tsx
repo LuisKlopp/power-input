@@ -10,7 +10,7 @@ import { User } from '@/types/userData';
 
 interface Props {
   userData: User[];
-  isNull: boolean;
+  isClosed: boolean;
   focusingIndex: number;
   transformIndex: number;
   currentInputValue: string;
@@ -23,20 +23,24 @@ const Input = () => {
   const listBoxRef = useRef<HTMLUListElement>(null);
   const [stateData, setStateData] = useState<Props>({
     userData: [],
-    isNull: true,
+    isClosed: true,
     focusingIndex: 0,
     transformIndex: 0,
     currentInputValue: '',
   });
-  // const [userData, setUserData] = useState<User[]>([]);
-  // const [isNull, setIsNull] = useState<boolean>(true);
-  // const [focusingIndex, setFocusingIndex] = useState<number>(0);
-  // const [currentInputValue, setCurrentInputValue] = useState<string>('');
   // form hooks
   // query hooks
   // calculated values
   // effects
   // handlers
+  const resetIndex = (): void => {
+    setStateData((prevState) => ({
+      ...prevState,
+      focusingIndex: 0,
+      transformIndex: 0,
+    }));
+  };
+
   const getUserData = useCallback(
     async (inputs: string) => {
       const data = await handler(inputs);
@@ -47,22 +51,12 @@ const Input = () => {
     [stateData.userData]
   );
 
-  const handleArrowDown = () => {
+  const handleArrowDown = (): void => {
     if (listBoxRef.current?.childElementCount === stateData.focusingIndex + 1) {
       listBoxRef.current!.style.transform = `translateY(0px)`;
-      // if (stateData.userData[stateData.focusingIndex + 1]) {
-      // } else {
-      setStateData((prevState) => ({
-        ...prevState,
-        focusingIndex: 0,
-        transformIndex: 0,
-      }));
+      resetIndex();
       // }
     } else {
-      // setStateData((prevState) => ({
-      //   ...prevState,
-      //   focusingIndex: prevState.focusingIndex + 1,
-      // }));
       if (stateData.focusingIndex > 2) {
         listBoxRef.current!.style.transform = `translateY(-${
           stateData.transformIndex * 34
@@ -80,14 +74,18 @@ const Input = () => {
       }
     }
   };
-
-  const handleArrowUp = () => {
+  console.log(stateData.focusingIndex, stateData.transformIndex);
+  const handleArrowUp = (): void => {
     if (stateData.focusingIndex === 0) {
+      listBoxRef.current!.style.transform = `translateY(-${
+        (stateData.userData.length - 5) * 34
+      }px)`;
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: prevState.userData.length - 1,
       }));
     } else {
+      // if ()
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: prevState.focusingIndex - 1,
@@ -95,11 +93,12 @@ const Input = () => {
     }
   };
 
-  const handleEnter = () => {
+  const handleEnter = (): void => {
     setStateData((prevState) => ({
       ...prevState,
       currentInputValue: prevState.userData[prevState.focusingIndex].name,
-      isNull: true,
+      isClosed: true,
+      transformIndex: 0,
       focusingIndex: 0,
     }));
   };
@@ -115,8 +114,8 @@ const Input = () => {
       case 'Enter':
         handleEnter();
         break;
-      // default:
-      //   break;
+      default:
+        break;
     }
   };
 
@@ -127,13 +126,14 @@ const Input = () => {
       return {
         ...prevState,
         currentInputValue: inputValue,
+        transformIndex: 0,
         focusingIndex: 0,
-        isNull: false,
+        isClosed: false,
       };
     });
     if (!inputValue)
       return setStateData((prevState) => {
-        return { ...prevState, isNull: true };
+        return { ...prevState, isClosed: true };
       });
   };
 
@@ -164,7 +164,7 @@ const Input = () => {
           },
         }}
       ></input>
-      {stateData.userData.length !== 0 && !stateData.isNull && (
+      {stateData.userData.length !== 0 && !stateData.isClosed && (
         <div
           css={{
             display: 'flex',
@@ -175,8 +175,8 @@ const Input = () => {
             position: 'absolute',
             boxShadow: `3px 2px 0px black`,
             top: '100%',
-            overflow: 'hidden',
-            maxHeight: '170px',
+            // overflow: 'hidden',
+            // maxHeight: '170px',
           }}
         >
           <ul css={{ listStyle: 'none' }} ref={listBoxRef}>
@@ -188,7 +188,7 @@ const Input = () => {
                     setStateData({
                       ...stateData,
                       currentInputValue: data.name,
-                      isNull: true,
+                      isClosed: true,
                     });
                   }}
                   css={{
