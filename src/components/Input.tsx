@@ -9,9 +9,11 @@ import { handler } from '@/api/powerApi';
 import { User } from '@/types/userData';
 
 interface Props {
+  originData: User[];
   userData: User[];
   isNull: boolean;
   focusingIndex: number;
+  originIndex: number;
   currentInputValue: string;
 }
 
@@ -21,28 +23,33 @@ const Input = () => {
   // state, ref, querystring hooks
   const listBoxRef = useRef<HTMLUListElement>(null);
   const [stateData, setStateData] = useState<Props>({
+    originData: [],
     userData: [],
     isNull: true,
     focusingIndex: 0,
+    originIndex: 0,
     currentInputValue: '',
   });
-  // const [userData, setUserData] = useState<User[]>([]);
-  // const [isNull, setIsNull] = useState<boolean>(true);
-  // const [focusingIndex, setFocusingIndex] = useState<number>(0);
-  // const [currentInputValue, setCurrentInputValue] = useState<string>('');
   // form hooks
   // query hooks
   // calculated values
+  const sliceData = stateData.userData.slice(0, 5);
   // effects
   // handlers
   const getUserData = useCallback(
     async (inputs: string) => {
       const data = await handler(inputs);
       setStateData((prevState) => {
-        return { ...prevState, userData: data };
+        return { ...prevState, userData: data, originData: data };
       });
     },
     [stateData.userData]
+  );
+  console.log(
+    'originIndex : ',
+    stateData.originIndex,
+    'focusingIndex : ',
+    stateData.focusingIndex
   );
 
   const handleArrowDown = () => {
@@ -53,12 +60,14 @@ const Input = () => {
           userData: prevState.userData.filter(
             (user, index) => prevState.focusingIndex - 4 !== index
           ),
+          originIndex: prevState.originIndex + 1,
         }));
       } else {
         getUserData(stateData.currentInputValue);
         setStateData((prevState) => ({
           ...prevState,
           focusingIndex: 0,
+          originIndex: 0,
         }));
       }
     } else {
@@ -70,16 +79,33 @@ const Input = () => {
   };
 
   const handleArrowUp = () => {
-    if (stateData.focusingIndex === 0) {
+    if (stateData.focusingIndex === 0 && stateData.originIndex === 0) {
       setStateData((prevState) => ({
         ...prevState,
-        focusingIndex: prevState.userData.length - 1,
+        userData: prevState.originData.slice(
+          stateData.originData.length - 5,
+          stateData.originData.length + 1
+        ),
+        focusingIndex: 4,
+        originIndex: prevState.originData.length - 1,
       }));
-    } else {
+    } else if (stateData.focusingIndex === 0 && stateData.originIndex > 0) {
+      setStateData((prevState) => ({
+        ...prevState,
+        focusingIndex: 0,
+        userData: prevState.originData.slice(
+          stateData.originIndex - 1,
+          stateData.originIndex + 4
+        ),
+        originIndex: prevState.originIndex - 1,
+      }));
+    } else if (stateData.focusingIndex !== 0 && stateData.originIndex > 0) {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: prevState.focusingIndex - 1,
+        originIndex: prevState.originIndex - 1,
       }));
+    } else {
     }
   };
 
@@ -166,7 +192,7 @@ const Input = () => {
           }}
         >
           <ul css={{ listStyle: 'none' }} ref={listBoxRef}>
-            {stateData.userData.slice(0, 5).map((data, index) => {
+            {sliceData.map((data, index) => {
               return (
                 <li
                   key={data.id}
