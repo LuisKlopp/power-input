@@ -22,6 +22,7 @@ const Input = () => {
   // lib hooks
   // state, ref, querystring hooks
   const listBoxRef = useRef<HTMLUListElement>(null);
+  const [targetFilter, setTargetFilter] = useState('age');
   const [stateData, setStateData] = useState<Props>({
     originData: [],
     userData: [],
@@ -40,7 +41,7 @@ const Input = () => {
   // handlers
   const getUserData = useCallback(
     async (inputs: string) => {
-      const data = await handler(inputs);
+      const data: User[] = await handler(inputs);
       setStateData((prevState) => {
         return { ...prevState, userData: data, originData: data };
       });
@@ -118,7 +119,13 @@ const Input = () => {
   const handleEnter = () => {
     setStateData((prevState) => ({
       ...prevState,
-      currentInputValue: prevState.userData[prevState.focusingIndex].name,
+      currentInputValue:
+        prevState.userData[prevState.focusingIndex].name +
+        ` (${
+          prevState.userData[prevState.focusingIndex][
+            targetFilter as keyof User
+          ]
+        })`,
       isNull: true,
       focusingIndex: 0,
     }));
@@ -156,6 +163,10 @@ const Input = () => {
       return setStateData((prevState) => {
         return { ...prevState, isNull: true };
       });
+  };
+
+  const onFilterChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setTargetFilter(e.currentTarget.value);
   };
 
   return (
@@ -198,7 +209,7 @@ const Input = () => {
             top: '100%',
           }}
         >
-          <ul css={{ listStyle: 'none' }} ref={listBoxRef}>
+          <ul css={{ listStyle: 'none', width: '100%' }} ref={listBoxRef}>
             {sliceData.map((data, index) => {
               return (
                 <li
@@ -206,7 +217,13 @@ const Input = () => {
                   onClick={() => {
                     setStateData({
                       ...stateData,
-                      currentInputValue: data.name,
+                      currentInputValue:
+                        stateData.userData[stateData.focusingIndex].name +
+                        ` (${
+                          stateData.userData[stateData.focusingIndex][
+                            targetFilter as keyof User
+                          ]
+                        })`,
                       isNull: true,
                     });
                   }}
@@ -216,18 +233,77 @@ const Input = () => {
                       stateData.focusingIndex === index ? '#bfeff9' : 'white',
                     fontSize: '20px',
                     cursor: 'pointer',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
                     '&:hover': {
                       backgroundColor: '#bfeff9',
                     },
                   }}
                 >
-                  {data.name + `(${data.age})`}
+                  {data.name + ` (${data[targetFilter as keyof User]})`}
                 </li>
               );
             })}
           </ul>
         </div>
       )}
+      <div css={{ marginTop: '10px' }}>
+        <fieldset
+          css={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            border: 'none',
+          }}
+        >
+          <label>
+            <input
+              defaultChecked
+              value='age'
+              name='check'
+              type='radio'
+              onChange={onFilterChange}
+            />
+            나이
+          </label>
+          <label>
+            <input
+              value='gender'
+              name='check'
+              type='radio'
+              onChange={onFilterChange}
+            />
+            성별
+          </label>
+          <label>
+            <input
+              value='phone'
+              name='check'
+              type='radio'
+              onChange={onFilterChange}
+            />
+            전화번호
+          </label>
+          <label>
+            <input
+              value='address'
+              name='check'
+              type='radio'
+              onChange={onFilterChange}
+            />
+            주소
+          </label>
+          <label>
+            <input
+              value='email'
+              name='check'
+              type='radio'
+              onChange={onFilterChange}
+            />
+            메일
+          </label>
+        </fieldset>
+      </div>
     </div>
   );
 };
