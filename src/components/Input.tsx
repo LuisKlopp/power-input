@@ -33,7 +33,9 @@ const Input = () => {
   // form hooks
   // query hooks
   // calculated values
-  const sliceData = stateData.userData.slice(0, 5);
+  const visibleDataLength =
+    stateData.originData.length > 4 ? 5 : stateData.originData.length;
+  const sliceData = stateData.userData.slice(0, visibleDataLength);
   // effects
   // handlers
   const getUserData = useCallback(
@@ -45,59 +47,25 @@ const Input = () => {
     },
     [stateData.userData]
   );
-  console.log(
-    'originIndex : ',
-    stateData.originIndex,
-    'focusingIndex : ',
-    stateData.focusingIndex
-  );
 
-  // const handleArrowDown = () => {
-  //   if (listBoxRef.current?.childElementCount === stateData.focusingIndex + 1) {
-  //     if (stateData.userData[stateData.focusingIndex + 1]) {
-  //       setStateData((prevState) => ({
-  //         ...prevState,
-  //         userData: prevState.userData.filter(
-  //           (user, index) => prevState.focusingIndex - 4 !== index
-  //         ),
-  //         originIndex: prevState.originIndex + 1,
-  //       }));
-  //     } else {
-  //       getUserData(stateData.currentInputValue);
-  //       setStateData((prevState) => ({
-  //         ...prevState,
-  //         focusingIndex: 0,
-  //         originIndex: 0,
-  //       }));
-  //     }
-  //   } else {
-  //     setStateData((prevState) => ({
-  //       ...prevState,
-  //       focusingIndex: prevState.focusingIndex + 1,
-  //     }));
-  //   }
-  // };
   const handleArrowDown = () => {
-    if (stateData.focusingIndex === 0 && stateData.originIndex >= 0) {
-      setStateData((prevState) => ({
-        ...prevState,
-        focusingIndex: prevState.focusingIndex + 1,
-        originIndex: prevState.originIndex + 1,
-      }));
-    } else if (stateData.focusingIndex !== 0 && stateData.originIndex < 4) {
+    if (
+      stateData.focusingIndex < visibleDataLength - 1 &&
+      stateData.originIndex >= 0
+    ) {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: prevState.focusingIndex + 1,
         originIndex: prevState.originIndex + 1,
       }));
     } else if (
-      stateData.focusingIndex === 4 &&
-      stateData.originIndex >= 4 &&
+      stateData.focusingIndex === visibleDataLength - 1 &&
+      stateData.originIndex >= visibleDataLength - 1 &&
       stateData.originIndex < stateData.originData.length - 1
     ) {
       setStateData((prevState) => ({
         ...prevState,
-        focusingIndex: 4,
+        focusingIndex: visibleDataLength - 1,
         userData: prevState.originData.slice(
           stateData.originIndex - 3,
           stateData.originIndex + 2
@@ -105,20 +73,14 @@ const Input = () => {
         originIndex: prevState.originIndex + 1,
       }));
     } else if (
-      stateData.focusingIndex === 4 &&
+      stateData.focusingIndex === visibleDataLength - 1 &&
       stateData.originIndex === stateData.originData.length - 1
     ) {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: 0,
-        userData: prevState.originData.slice(0, 5),
+        userData: prevState.originData.slice(0, visibleDataLength),
         originIndex: 0,
-      }));
-    } else if (stateData.focusingIndex < 4 && stateData.originIndex !== 0) {
-      setStateData((prevState) => ({
-        ...prevState,
-        focusingIndex: prevState.focusingIndex + 1,
-        originIndex: prevState.originIndex + 1,
       }));
     }
   };
@@ -128,7 +90,7 @@ const Input = () => {
       setStateData((prevState) => ({
         ...prevState,
         userData: prevState.originData.slice(
-          stateData.originData.length - 5,
+          stateData.originData.length - visibleDataLength,
           stateData.originData.length + 1
         ),
         focusingIndex: 4,
@@ -140,7 +102,7 @@ const Input = () => {
         focusingIndex: 0,
         userData: prevState.originData.slice(
           stateData.originIndex - 1,
-          stateData.originIndex + 4
+          stateData.originIndex + (visibleDataLength - 1)
         ),
         originIndex: prevState.originIndex - 1,
       }));
@@ -150,7 +112,6 @@ const Input = () => {
         focusingIndex: prevState.focusingIndex - 1,
         originIndex: prevState.originIndex - 1,
       }));
-    } else {
     }
   };
 
@@ -187,6 +148,7 @@ const Input = () => {
         ...prevState,
         currentInputValue: inputValue,
         focusingIndex: 0,
+        originIndex: 0,
         isNull: false,
       };
     });
