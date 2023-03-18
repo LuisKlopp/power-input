@@ -12,6 +12,7 @@ interface Props {
   userData: User[];
   isNull: boolean;
   focusingIndex: number;
+  transformIndex: number;
   currentInputValue: string;
 }
 
@@ -24,6 +25,7 @@ const Input = () => {
     userData: [],
     isNull: true,
     focusingIndex: 0,
+    transformIndex: 0,
     currentInputValue: '',
   });
   // const [userData, setUserData] = useState<User[]>([]);
@@ -47,25 +49,35 @@ const Input = () => {
 
   const handleArrowDown = () => {
     if (listBoxRef.current?.childElementCount === stateData.focusingIndex + 1) {
-      if (stateData.userData[stateData.focusingIndex + 1]) {
-        setStateData((prevState) => ({
-          ...prevState,
-          userData: prevState.userData.filter(
-            (user, index) => prevState.focusingIndex - 4 !== index
-          ),
-        }));
-      } else {
-        getUserData(stateData.currentInputValue);
-        setStateData((prevState) => ({
-          ...prevState,
-          focusingIndex: 0,
-        }));
-      }
-    } else {
+      listBoxRef.current!.style.transform = `translateY(0px)`;
+      // if (stateData.userData[stateData.focusingIndex + 1]) {
+      // } else {
       setStateData((prevState) => ({
         ...prevState,
-        focusingIndex: prevState.focusingIndex + 1,
+        focusingIndex: 0,
+        transformIndex: 0,
       }));
+      // }
+    } else {
+      // setStateData((prevState) => ({
+      //   ...prevState,
+      //   focusingIndex: prevState.focusingIndex + 1,
+      // }));
+      if (stateData.focusingIndex > 2) {
+        listBoxRef.current!.style.transform = `translateY(-${
+          stateData.transformIndex * 34
+        }px)`;
+        setStateData((prevState) => ({
+          ...prevState,
+          focusingIndex: prevState.focusingIndex + 1,
+          transformIndex: prevState.transformIndex + 1,
+        }));
+      } else {
+        setStateData((prevState) => ({
+          ...prevState,
+          focusingIndex: prevState.focusingIndex + 1,
+        }));
+      }
     }
   };
 
@@ -103,8 +115,8 @@ const Input = () => {
       case 'Enter':
         handleEnter();
         break;
-      default:
-        break;
+      // default:
+      //   break;
     }
   };
 
@@ -163,10 +175,12 @@ const Input = () => {
             position: 'absolute',
             boxShadow: `3px 2px 0px black`,
             top: '100%',
+            overflow: 'hidden',
+            maxHeight: '170px',
           }}
         >
           <ul css={{ listStyle: 'none' }} ref={listBoxRef}>
-            {stateData.userData.slice(0, 5).map((data, index) => {
+            {stateData.userData.map((data, index) => {
               return (
                 <li
                   key={data.id}
