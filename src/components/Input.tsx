@@ -52,28 +52,73 @@ const Input = () => {
     stateData.focusingIndex
   );
 
+  // const handleArrowDown = () => {
+  //   if (listBoxRef.current?.childElementCount === stateData.focusingIndex + 1) {
+  //     if (stateData.userData[stateData.focusingIndex + 1]) {
+  //       setStateData((prevState) => ({
+  //         ...prevState,
+  //         userData: prevState.userData.filter(
+  //           (user, index) => prevState.focusingIndex - 4 !== index
+  //         ),
+  //         originIndex: prevState.originIndex + 1,
+  //       }));
+  //     } else {
+  //       getUserData(stateData.currentInputValue);
+  //       setStateData((prevState) => ({
+  //         ...prevState,
+  //         focusingIndex: 0,
+  //         originIndex: 0,
+  //       }));
+  //     }
+  //   } else {
+  //     setStateData((prevState) => ({
+  //       ...prevState,
+  //       focusingIndex: prevState.focusingIndex + 1,
+  //     }));
+  //   }
+  // };
   const handleArrowDown = () => {
-    if (listBoxRef.current?.childElementCount === stateData.focusingIndex + 1) {
-      if (stateData.userData[stateData.focusingIndex + 1]) {
-        setStateData((prevState) => ({
-          ...prevState,
-          userData: prevState.userData.filter(
-            (user, index) => prevState.focusingIndex - 4 !== index
-          ),
-          originIndex: prevState.originIndex + 1,
-        }));
-      } else {
-        getUserData(stateData.currentInputValue);
-        setStateData((prevState) => ({
-          ...prevState,
-          focusingIndex: 0,
-          originIndex: 0,
-        }));
-      }
-    } else {
+    if (stateData.focusingIndex === 0 && stateData.originIndex >= 0) {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: prevState.focusingIndex + 1,
+        originIndex: prevState.originIndex + 1,
+      }));
+    } else if (stateData.focusingIndex !== 0 && stateData.originIndex < 4) {
+      setStateData((prevState) => ({
+        ...prevState,
+        focusingIndex: prevState.focusingIndex + 1,
+        originIndex: prevState.originIndex + 1,
+      }));
+    } else if (
+      stateData.focusingIndex === 4 &&
+      stateData.originIndex >= 4 &&
+      stateData.originIndex < stateData.originData.length - 1
+    ) {
+      setStateData((prevState) => ({
+        ...prevState,
+        focusingIndex: 4,
+        userData: prevState.originData.slice(
+          stateData.originIndex - 3,
+          stateData.originIndex + 2
+        ),
+        originIndex: prevState.originIndex + 1,
+      }));
+    } else if (
+      stateData.focusingIndex === 4 &&
+      stateData.originIndex === stateData.originData.length - 1
+    ) {
+      setStateData((prevState) => ({
+        ...prevState,
+        focusingIndex: 0,
+        userData: prevState.originData.slice(0, 5),
+        originIndex: 0,
+      }));
+    } else if (stateData.focusingIndex < 4 && stateData.originIndex !== 0) {
+      setStateData((prevState) => ({
+        ...prevState,
+        focusingIndex: prevState.focusingIndex + 1,
+        originIndex: prevState.originIndex + 1,
       }));
     }
   };
