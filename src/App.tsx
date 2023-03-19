@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { handler } from './api/powerApi';
 import { User } from './types/userData';
-import Input from './components/Input';
+import Input from './components/input/Input';
 
 const App = () => {
   return (
