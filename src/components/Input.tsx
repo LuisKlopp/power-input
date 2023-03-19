@@ -50,33 +50,28 @@ const Input = () => {
   );
 
   const handleArrowDown = () => {
-    if (
-      stateData.focusingIndex < visibleDataLength - 1 &&
-      stateData.originIndex >= 0
-    ) {
+    const { focusingIndex, originIndex, originData } = stateData;
+    const isLastItemVisible = focusingIndex === visibleDataLength - 1;
+    const isLastItemInData = originIndex === originData.length - 1;
+
+    if (focusingIndex < visibleDataLength - 1 && originIndex >= 0) {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: prevState.focusingIndex + 1,
         originIndex: prevState.originIndex + 1,
       }));
     } else if (
-      stateData.focusingIndex === visibleDataLength - 1 &&
-      stateData.originIndex >= visibleDataLength - 1 &&
-      stateData.originIndex < stateData.originData.length - 1
+      isLastItemVisible &&
+      originIndex >= visibleDataLength - 1 &&
+      !isLastItemInData
     ) {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: visibleDataLength - 1,
-        userData: prevState.originData.slice(
-          stateData.originIndex - 3,
-          stateData.originIndex + 2
-        ),
+        userData: prevState.originData.slice(originIndex - 3, originIndex + 2),
         originIndex: prevState.originIndex + 1,
       }));
-    } else if (
-      stateData.focusingIndex === visibleDataLength - 1 &&
-      stateData.originIndex === stateData.originData.length - 1
-    ) {
+    } else if (isLastItemVisible && isLastItemInData) {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: 0,
@@ -87,27 +82,32 @@ const Input = () => {
   };
 
   const handleArrowUp = () => {
-    if (stateData.focusingIndex === 0 && stateData.originIndex === 0) {
+    const { focusingIndex, originIndex, originData } = stateData;
+
+    if (focusingIndex === 0 && originIndex === 0) {
       setStateData((prevState) => ({
         ...prevState,
-        userData: prevState.originData.slice(
-          stateData.originData.length - visibleDataLength,
-          stateData.originData.length + 1
-        ),
+        userData: prevState.originData.slice(-visibleDataLength),
         focusingIndex: visibleDataLength - 1,
         originIndex: prevState.originData.length - 1,
       }));
-    } else if (stateData.focusingIndex === 0 && stateData.originIndex > 0) {
+      return;
+    }
+
+    if (focusingIndex === 0 && originIndex > 0) {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: 0,
         userData: prevState.originData.slice(
-          stateData.originIndex - 1,
-          stateData.originIndex + (visibleDataLength - 1)
+          originIndex - 1,
+          originIndex + visibleDataLength - 1
         ),
         originIndex: prevState.originIndex - 1,
       }));
-    } else if (stateData.focusingIndex !== 0 && stateData.originIndex > 0) {
+      return;
+    }
+
+    if (originIndex > 0) {
       setStateData((prevState) => ({
         ...prevState,
         focusingIndex: prevState.focusingIndex - 1,
@@ -150,19 +150,13 @@ const Input = () => {
   const onChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const inputValue = e.target.value;
     getUserData(inputValue);
-    setStateData((prevState) => {
-      return {
-        ...prevState,
-        currentInputValue: inputValue,
-        focusingIndex: 0,
-        originIndex: 0,
-        isNull: false,
-      };
-    });
-    if (!inputValue)
-      return setStateData((prevState) => {
-        return { ...prevState, isNull: true };
-      });
+    setStateData((prevState) => ({
+      ...prevState,
+      currentInputValue: inputValue,
+      focusingIndex: 0,
+      originIndex: 0,
+      isNull: !inputValue,
+    }));
   };
 
   const onFilterChange = (e: ChangeEvent<HTMLInputElement>): void => {
